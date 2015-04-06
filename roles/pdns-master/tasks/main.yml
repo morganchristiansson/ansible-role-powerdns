@@ -3,11 +3,11 @@
 - name: install deps
   apt: pkg={{ item }}
   with_items:
+    - build-essential
     - nginx
     - pdns-server
     - pdns-backend-mysql
     - ruby1.9.3
-    - rubygems
     - libxml2-dev
     - libxslt-dev
     - libmysqlclient-dev
@@ -34,9 +34,9 @@
 
 - name: clone powerdns-on-rails
   git:
-    repo=https://github.com/Russell-IO/powerdns-on-rails.git
+    repo={{ pdns_on_rails_repo.url }}
     dest={{ document_root }}/powerdns-on-rails
-    version=revised
+    version={{ pdns_on_rails_repo.version }}
   notify: restart unicorn
 
 - name: copy database config file
