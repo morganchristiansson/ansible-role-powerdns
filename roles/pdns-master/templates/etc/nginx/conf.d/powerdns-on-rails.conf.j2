@@ -1,0 +1,30 @@
+upstream powerdns-on-rails {
+    server unix:/tmp/powerdns-on-rails.sock;
+}
+
+server {
+    listen      80;
+    server_name powerdns.example.net;
+    access_log  /var/log/powerdns-on-rails/access.log;
+    error_log   /var/log/powerdns-on-rails/error.log;
+
+    location / {
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Client-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_pass http://powerdns-on-rails;
+
+        {% for nginx_allow_ip in nginx_allow_ips %}
+        allow {{ nginx_allow_ip }};
+        {% endfor %}
+        deny all;
+    }
+
+    location ~ ^/(stylesheets|javascripts|images)/ {
+        root    {{ document_root }}/powerdns-on-rails/public;
+    }
+
+    location = /robots.txt  { log_not_found off; }
+    location = /favicon.ico { log_not_found off; }
+}

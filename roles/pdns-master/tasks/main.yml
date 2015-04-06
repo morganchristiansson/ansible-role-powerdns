@@ -1,0 +1,74 @@
+---
+
+- name: install deps
+  apt: pkg={{ item }}
+  with_items:
+    - nginx
+    - pdns-server
+    - pdns-backend-mysql
+    - ruby1.9.3
+    - rubygems
+    - libxml2-dev
+    - libxslt-dev
+    - libmysqlclient-dev
+    - git
+    - daemontools
+
+- name: copy Upstart config file
+  template:
+    src=etc/init/unicorn.conf.j2
+    dest=/etc/init/unicorn.conf
+
+- name: uninstall ruby1.8
+  apt:
+    pkg=ruby1.8
+    state=absent
+
+- name: install bundler
+  shell: gem install bundler --no-ri --no-rdoc
+
+- name: make www directory
+  file:
+    path={{ document_root }}
+    state=directory
+
+- name: clone powerdns-on-rails
+  git:
+    repo=https://github.com/Russell-IO/powerdns-on-rails.git
+    dest={{ document_root }}/powerdns-on-rails
+    version=revised
+  notify: restart unicorn
+
+- name: copy database config file
+  template:
+    src=var/www/powerdns-on-rails/config/database.yml.j2
+    dest={{ document_root }}/powerdns-on-rails/config/database.yml
+  notify: restart unicorn
+
+- name: install powerdns-on-rails
+  shell:
+    chdir={{ document_root }}/powerdns-on-rails
+    bundle install --path vendor/bundle --without test development
+    && bundle exec rake db:migrate RAILS_ENV=production
+    && bundle exec rake assets:precompile RAILS_ENV=production
+    && bundle exec rake db:seed RAILS_ENV=production
+    && bundle exec rake generate_secret_token
+  notify: restart unicorn
+
+- name: make log directory
+  file:
+    path=/var/log/powerdns-on-rails
+    state=directory
+
+- name: remove nginx default config file
+  file:
+    path=/etc/nginx/sites-enabled/default
+    state=absent
+  notify: reload nginx
+
+- name: copy nginx config file
+  template:
+    src=etc/nginx/conf.d/powerdns-on-rails.conf.j2
+    dest=/etc/nginx/conf.d/powerdns-on-rails.conf
+  notify: reload nginx
+
