@@ -13,10 +13,16 @@
     mode=0600
   notify: reload powerdns
 
-- name: disable DNSSEC
-  lineinfile:
-    dest=/etc/powerdns/pdns.d/pdns.local.gmysql
-    regexp=^gmysql-dnssec=
-    line=gmysql-dnssec=no
+- name: copy PowerDNS mysql config file
+  template:
+    src=etc/powerdns/pdns.d/pdns.local.gmysql.conf.j2
+    dest=/etc/powerdns/pdns.d/pdns.local.gmysql.conf
+    mode=0600
+  notify: reload powerdns
+
+- name: disable bind config
+  file:
+    dest=/etc/powerdns/pdns.d/pdns.simplebind.conf
+    state=absent
   notify: reload powerdns
 

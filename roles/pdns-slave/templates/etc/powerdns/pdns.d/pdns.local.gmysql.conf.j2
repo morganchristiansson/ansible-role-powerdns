@@ -1,0 +1,12 @@
+# MySQL Configuration
+#
+# Launch gmysql backend
+launch=gmysql
+
+# gmysql parameters
+gmysql-host={{ pdns_database.host | default('localhost') }}
+gmysql-port={{ pdns_database.port | default('3306') }}
+gmysql-dbname={{ pdns_database.name | default('pdns') }}
+gmysql-user={{ pdns_database.user | default('pdns') }}
+gmysql-password={{ pdns_database.pass }}
+gmysql-dnssec=no
