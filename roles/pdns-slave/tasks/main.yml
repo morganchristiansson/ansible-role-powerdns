@@ -26,3 +26,15 @@
     state=absent
   notify: reload powerdns
 
+- name: disable local config
+  file:
+    dest=/etc/powerdns/pdns.d/pdns.local.conf
+    state=absent
+  notify: reload powerdns
+
+- name: disable bind config
+  file:
+    dest=/etc/powerdns/bindbackend.conf
+    state=absent
+  notify: reload powerdns
+
