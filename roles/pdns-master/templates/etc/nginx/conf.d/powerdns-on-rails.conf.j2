@@ -4,7 +4,15 @@ upstream powerdns-on-rails {
 
 server {
     listen      80;
-    server_name powerdns.example.net;
+{% if nginx_ssl_files is defined %}
+    return 301 https://$host$request_uri;
+}
+server {
+    listen	443 ssl;
+    ssl_certificate /etc/nginx/ssl.cer;
+    ssl_certificate_key /etc/nginx/ssl.key;
+{% endif %}
+    server_name {{ nginx_server_name }};
     access_log  /var/log/powerdns-on-rails/access.log;
     error_log   /var/log/powerdns-on-rails/error.log;
 

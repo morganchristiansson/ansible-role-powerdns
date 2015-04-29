@@ -72,3 +72,9 @@
     dest=/etc/nginx/conf.d/powerdns-on-rails.conf
   notify: reload nginx
 
+- name: copy ssl keys for nginx
+  copy:
+    src={{ item }}
+    dest=/etc/nginx/
+  with_items: nginx_ssl_files
+  when: nginx_ssl_files is defined
