@@ -37,6 +37,7 @@
     repo={{ pdns_on_rails_repo.url }}
     dest={{ document_root }}/powerdns-on-rails
     version={{ pdns_on_rails_repo.version }}
+    force=yes
   notify: restart unicorn
 
 - name: copy database config file
