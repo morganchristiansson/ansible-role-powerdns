@@ -7,8 +7,8 @@ daemon=yes
 disable-axfr=no
 guardian=yes
 
-local-address=0.0.0.0
-local-port=53
+local-address={{ pdns_bind_host | default('0.0.0.0') }}
+local-port={{ pdns_bind_port | default('53') }}
 
 master=yes
 module-dir=/usr/lib/powerdns
