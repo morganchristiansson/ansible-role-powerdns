@@ -38,22 +38,25 @@
     dest={{ document_root }}/powerdns-on-rails
     version={{ pdns_on_rails_repo.version }}
     force=yes
-  notify: restart unicorn
 
 - name: copy database config file
   template:
     src=var/www/powerdns-on-rails/config/database.yml.j2
     dest={{ document_root }}/powerdns-on-rails/config/database.yml
-  notify: restart unicorn
 
 - name: install powerdns-on-rails
   shell:
     chdir={{ document_root }}/powerdns-on-rails
     bundle install --path vendor/bundle --without test development
-    && bundle exec rake db:migrate RAILS_ENV=production
     && bundle exec rake assets:precompile RAILS_ENV=production
-    && bundle exec rake db:seed RAILS_ENV=production
     && bundle exec rake generate_secret_token
+
+- name: setup db
+  shell:
+    chdir={{ document_root }}/powerdns-on-rails
+    && bundle exec rake db:migrate RAILS_ENV=production
+    && bundle exec rake db:seed RAILS_ENV=production
+  run_once: true
   notify: restart unicorn
 
 - name: make log directory
